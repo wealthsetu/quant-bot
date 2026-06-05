@@ -32,7 +32,7 @@ def add_log(message):
     timestamp = datetime.datetime.now().strftime('%H:%M:%S')
     st.session_state.audit_logs.append(f"[{timestamp}] {message}")
 
-# Live Market Data (Error Handling Expanded for Stability)
+# Live Market Data
 def get_live_market_data():
     try:
         url = "https://query1.finance.yahoo.com/v8/finance/chart/^NSEI"
@@ -44,7 +44,6 @@ def get_live_market_data():
         calculated_pe = round(live_price / estimated_eps, 2)
         return calculated_pe, round(live_price, 2)
     except Exception as e:
-        # एपीआई फेल होने पर क्रैश नहीं होगा, बैकअप डेटा देगा
         return 23.44, 23868.0
 
 current_pe, nifty_spot = get_live_market_data()
@@ -94,7 +93,7 @@ st.markdown("---")
 
 # 👑 VIP पेंशनर नेविगेशन मशीन (Retirement Plan Comparison Room)
 st.subheader("🏛️ VIP पेंशनर नेविगेशन मशीन")
-st.markdown("*यह मशीन रिटायर्ड निवेशकों को विभिन्न पेंशन योजनाओं के बीच सीधा वित्तीय अंतर (Comparison) दिखाती है।*")
+st.markdown("*यह machine रिटायर्ड निवेशकों को विभिन्न पेंशन योजनाओं के बीच सीधा वित्तीय अंतर (Comparison) दिखाती है।*")
 
 p_left, p_right = st.columns([2, 1])
 
@@ -102,19 +101,18 @@ with p_left:
     pension_amt = st.number_input("रिटायरमेंट का कुल लम्पसम फंड (INR) दर्ज करें:", min_value=100000, value=2000000, step=100000)
 
 with p_right:
-    # 🎮 Feature #1: "What-If" Stress Simulator (चैटजीपीटी का बेहतरीन सुझाव)
     st.markdown("**🚨 बाज़ार का तनाव सिमुलेटर (Stress Test)**")
     market_scenario = st.selectbox("अगर अगले 10 साल में यह हो जाए:", ["सामान्य बाज़ार (Normal Market)", "भयंकर मंदी (Market Crash -30%)", "भारी महंगाई (High Inflation 8%+)"])
 
-# मार्केट सिनेरियो के हिसाब से एडजस्टमेंट लॉजिक
+# मार्केट सिनेरियो एडजस्टमेंट लॉजिक
 inflation_drag = 1.0
 quant_modifier = 1.0
 
 if market_scenario == "भयंकर मंदी (Market Crash -30%)":
-    quant_modifier = 0.70  # इक्विटी का रिटर्न क्रैश में कम होगा
+    quant_modifier = 0.70
     add_log("⚠️ [STRESS TEST] यूज़र ने बाज़ार क्रैश सिनेरियो एक्टिव किया। रिस्क मैनेजमेंट अलर्ट ऑन।")
 elif market_scenario == "भारी महंगाई (High Inflation 8%+)":
-    inflation_drag = 0.85  # फिक्स इनकम की वैल्यू महंगाई खा जाएगी
+    inflation_drag = 0.85
 
 # कैलकुलेशन
 trad_10yr_wealth = (pension_amt * ((1 + 0.065) ** 10)) * (inflation_drag if market_scenario == "भारी महंगाई (High Inflation 8%+)" else 1.0)
@@ -127,20 +125,20 @@ quant_growth = quant_part * ((1 + (0.15 * quant_modifier)) ** 10)
 safe_growth = (safe_part * ((1 + 0.075) ** 10)) * (inflation_drag if market_scenario == "भारी महंगाई (High Inflation 8%+)" else 1.0)
 wealthsetu_10yr_wealth = quant_growth + safe_growth
 
-# तुलनात्मक कार्ड्स
+# तुलनात्मक कार्ड्स (यहाँ एरर ठीक कर दिया गया है)
 c_col1, c_col2, c_col3 = st.columns(3)
 
 with c_col1:
     st.error("📉 रास्ता 1: 100% जीवन शांति")
     st.metric(label="10 साल बाद कुल वैल्यू", value=f"₹{trad_10yr_wealth:,.2f}")
     if market_scenario == "भारी महंगाई (High Inflation 8%+)":
-        st.caption("❌ महंगाई के कारण इस फिक्स पेंशन की क्रय शक्ति (Purchasing Power) बहुत कम हो जाएगी।")
+        st.caption("❌ महंगाई के कारण इस फिक्स पेंशन की क्रय शक्ति बहुत कम हो जाएगी।")
     else:
         st.caption("🔒 0% रिस्क, लेकिन फिक्स रिटर्न के कारण महंगाई को मात देना नामुमकिन।")
 
 with c_col2:
     st.warning("🟡 रास्ता 2: 100% सरकारी SCSS")
-    st.metric(label="10 साल बाद कुल वैल्यू", value=f"₹{scss_10wealth:= scss_10yr_wealth:,.2f}")
+    st.metric(label="10 साल बाद कुल वैल्यू", value=f"₹{scss_10yr_wealth:,.2f}")
     st.caption("✅ कड़क सरकारी गारंटी और जीवन शांति से बेहतर **8.2%** का वर्तमान ब्याज।")
 
 with c_col3:
@@ -162,13 +160,13 @@ st.subheader("🏛️ नेशनल पेंशन सिस्टम (NPS) -
 if current_pe > 24.0:
     nps_e, nps_c, nps_g = 30, 20, 50
     nps_status = "🔴 MARKET OVERVALUED"
-    nps_advice = "इक्विटी (E) को 30% करें और सरकारी बॉन्ड्स (G) को बढ़ाकर 50% पर लॉक करें।"
+    nps_advice = "इक्विटी (E) को 30% करें और सरकारी बॉन्ड्स (G) को बढ़ाकर 50% पर锁 करें।"
 else:
     nps_e, nps_c, nps_g = 50, 25, 25
     nps_status = "🟡 MARKET NEUTRAL"
     nps_advice = "बाजार अभी स्थिर है। 50% इक्विटी और बाकी हिस्सा कॉर्पोरेट/सरकारी बॉन्ड्स में बराबर रखें।"
 
-st.warning(f"**सिस्टम सिग्नल:** {nps_status} | {nps_advice}")
+st.warning(f"**सिस्टम संकेत:** {nps_status} | {nps_advice}")
 st.markdown("---")
 
 # Trading Console & Logs
@@ -192,7 +190,7 @@ with col2:
     for log in reversed(st.session_state.audit_logs):
         st.text(log)
 
-# 🛡️ Legal Advisory & Compliance Disclaimer (चैटजीपीटी का रेगुलेटरी रिस्क तोड़)
+# 🛡️ Legal Advisory & Compliance Disclaimer
 st.markdown("---")
 st.caption("⚖️ **कानूनी और विनियामक डिस्क्लेमर (SEBI Regulatory Disclaimer):** "
            "वेल्थसेतु संस्थागत टर्मिनल पर दिखाए गए सभी आंकड़े, सिमुलेशन और ऐतिहासिक डेटा केवल शैक्षिक और तुलनात्मक उद्देश्यों के लिए हैं। "
