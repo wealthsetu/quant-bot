@@ -1,5 +1,14 @@
+import sys
+import subprocess
+
+# 🚀 ब्रह्मास्त्र: अगर yfinance न मिले, तो कोड खुद उसे जबरदस्ती इंस्टॉल करेगा!
+try:
+    import yfinance as yf
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "yfinance"])
+    import yfinance as yf
+
 import streamlit as st
-import yfinance as yf
 
 # 1. पेज का टाइटल और प्रीमियम थीम सेटअप
 st.set_page_config(page_title="WealthSetu Quant Platform", page_icon="📈", layout="wide")
@@ -16,7 +25,7 @@ def get_live_pe():
         calculated_pe = round(live_price / estimated_eps, 2)
         return calculated_pe, round(live_price, 2)
     except:
-        return 23.4, 23868.0  # बैकअप डेटा अगर API रिस्पॉन्ड न करे
+        return 23.4, 23868.0  # बैकअप डेटा
 
 current_pe, nifty_spot = get_live_pe()
 
@@ -55,4 +64,4 @@ with col2:
     
     if st.button("🚀 DEPLOY CAPITAL INTO MARKET", use_container_width=True):
         st.balloons() # स्क्रीन पर गुब्बारे उड़ने का एनिमेटेड इफेक्ट
-        st.success(f"🔥 सफलता! ₹{invested:,.2f} का आर्डर सीधे एंजेलワン में पंच कर दिया गया है!")
+        st.success(f"🔥 सफलता! ₹{invested:,.2f} का आर्डर सीधे एंजेल वन में पंच कर दिया गया है!")
