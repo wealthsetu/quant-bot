@@ -17,9 +17,8 @@ except Exception as e:
 
 st.set_page_config(page_title="WealthSetu Enterprise", page_icon="🏦", layout="wide")
 
-# वीआईपी हेडर
-st.title("🏦 WealthSetu | Multi-Client Asset Allocation Engine")
-st.markdown("⚡ *Unmatched Quantitative Automation Platform*")
+st.title("🏦 WealthSetu | Multi-Client Asset Allocation & Live Dashboard")
+st.markdown("⚡ *Unmatched Quantitative Automation & Live Analytics Platform*")
 st.markdown("---")
 
 # 1. लाइव मार्केट डेटा इंजन
@@ -50,68 +49,73 @@ def generate_totp(secret):
     except:
         return "000000"
 
-# 🌟 मल्टी-अकाउंट और शेड्यूलर का सीक्रेट पैनल (Sidebar)
+# 👤 साइडबार कंट्रोल रूम
 with st.sidebar:
-    st.header("👤 मल्टी-क्लाइंट कंट्रोल रूम")
-    
-    # फीचर 1: मल्टी-अकाउंट सपोर्ट (Dynamic Dropdown)
+    st.header("👤 मल्टी-क्लाइंट कंट्रोल")
     selected_client = st.selectbox(
         "सक्रिय क्लाइंट अकाउंट चुनें:",
-        [f"Udit Patware ({ANGEL_CLIENT_ID})", "Priyanka Patware (Family Account)", "Add New Client App..."]
+        [f"Udit Patware ({ANGEL_CLIENT_ID})", "Priyanka Patware (Family Account)"]
     )
-    
     st.markdown("---")
-    st.header("⏳ ऑटो-पायलट शेड्यूलर")
-    
-    # फीचर 3: नो-क्लिक ऑटोमेशन मोड
-    scheduler_mode = st.toggle("⏰ ऑटोमैटिक क्रॉन-जॉब एक्टिवेट करें (No-Click Mode)", value=False)
-    if scheduler_mode:
-        st.success("🤖 ऑटो-पायलट ऑन है! हर सोमवार सुबह 10:00 बजे सिस्टम खुद आर्डर पंच करेगा।")
-    else:
-        st.info("ℹ️ अभी मैन्युअल वन-क्लिक मोड एक्टिव है।")
+    st.header("⏳ ऑटो-पायलट")
+    scheduler_mode = st.toggle("⏰ ऑटोमैटिक मोड (No-Click)", value=False)
 
-# 2. स्क्रीन लेआउट
-col1, col2 = st.columns([1, 2])
+# 🔥 नया फीचर: लाइव पीएंडएल (P&L) ट्रैकर मीटर (सोमवार को यह लाइव एंजेल वन से डेटा खींचेगा)
+st.subheader("📈 लाइव पोर्टफोलियो ट्रैकर (Live P&L Tracking)")
+p_col1, p_col2, p_col3 = st.columns(3)
+
+# सिमुलेटेड लाइव डेटा (सोमवार को यह लाइव बदलेगा)
+current_value = 51240.50
+invested_value = 50000.00
+net_profit = current_value - invested_value
+profit_percentage = (net_profit / invested_value) * 100
+
+with p_col1:
+    st.metric(label="कुल निवेशित मूल्य (Invested Value)", value=f"₹{invested_value:,.2f}")
+with p_col2:
+    st.metric(label="वर्तमान लाइव मूल्य (Current Value)", value=f"₹{current_value:,.2f}")
+with p_col3:
+    # अगर प्रॉफिट है तो ग्रीन दिखेगा, लॉस है तो रेड
+    st.metric(label="कुल फायदा / नुकसान (Total P&L)", value=f"₹{net_profit:,.2f}", delta=f"+{profit_percentage:.2f}%")
+
+st.markdown("---")
+
+# 2. स्क्रीन लेआउट (डेटा और चार्ट्स)
+col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.subheader("🧠 इंटेलिजेंट वैल्यूएशन मीटर")
-    if current_pe > 24.0:
-        st.error(f"🔴 EXPENSIVE ZONE (P/E: {current_pe})")
-        allocation_mode = "Safety (50-50)"
-    elif current_pe < 19.0:
-        st.success(f"🟢 CHEAP ZONE (P/E: {current_pe})")
-        allocation_mode = "Aggressive (80-20)"
-    else:
-        st.warning(f"🟡 NORMAL ZONE (P/E: {current_pe})")
-        allocation_mode = "Balanced (70-30)"
-        
-    st.metric(label="NIFTY 50 SPOT", value=f"₹{nifty_spot:,.2f}")
-    st.info(f"📊 वर्तमान रणनीति: **{allocation_mode}**")
-
-with col2:
-    st.subheader("⚡ फीचर 2: मल्टी-एसेट बास्केट एलोकेशन")
+    st.subheader("⚡ एसेट एलोकेशन कैलकुलेटर")
     investment_amount = st.number_input("कुल निवेश राशि (INR) दर्ज करें:", min_value=1000, value=50000, step=5000)
     
-    # एक्चुअरी का थ्री-वे स्प्लिट गणित (NiftyBeES + GoldBeES + LiquidBeES)
     if current_pe > 24.0:
         nifty_bees = investment_amount * 0.40
         gold_bees = investment_amount * 0.30
         liquid_bees = investment_amount * 0.30
+        allocation_mode = "Safety (50-50)"
     else:
         nifty_bees = investment_amount * 0.70
         gold_bees = investment_amount * 0.15
         liquid_bees = investment_amount * 0.15
+        allocation_mode = "Aggressive (80-20)"
 
-    # ब्रेकअप टेबल/डिस्प्ले
-    st.markdown(f"📈 **NiftyBeES (इक्विटी इंडेक्स):** ₹{nifty_bees:,.2f}")
-    st.markdown(f"🟡 **GoldBeES (सुरक्षित सोना):** ₹{gold_bees:,.2f}")
-    st.markdown(f"💧 **LiquidBeES (इमर्जेंसी कैश):** ₹{liquid_bees:,.2f}")
-    st.markdown("---")
+    st.info(f"📊 निफ्टी P/E: {current_pe} | रणनीति: **{allocation_mode}**")
     
     if st.button("🚀 DEPLOY ENTERPRISE CAPITAL", use_container_width=True):
-        st.info(f"🔄 {selected_client} के लिए एंजेल वन सर्वर से सुरक्षित संपर्क स्थापित किया जा रहा है...")
+        st.info("🔄 एंजेल वन सर्वर से संपर्क स्थापित किया जा रहा है...")
         live_otp = generate_totp(ANGEL_TOTP_SECRET)
         st.success(f"🔐 लाइव सिक्योर टोकन जनरेटेड: {live_otp}")
-        
         st.balloons()
-        st.success(f"🔥 बेजोड़ सफलता! ₹{investment_amount:,.2f} का थ्री-वे बास्केट ऑर्डर एंजेल वन में प्रोसेस हो गया!")
+        st.success(f"🔥 बेजोड़ सफलता! आर्डर एंजेल वन में प्रोसेस हो गया!")
+
+with col2:
+    st.subheader("📊 विज़ुअलाइज़ेशन: एसेट डिस्ट्रीब्यूशन ग्राफ")
+    
+    # 🌟 जादुई विज़ुअलाइज़ेशन चार्ट डेटा
+    chart_data = {
+        "Asset Class": ["NiftyBeES (इक्विटी)", "GoldBeES (सोना)", "LiquidBeES (कैश)"],
+        "Amount": [nifty_bees, gold_bees, liquid_bees]
+    }
+    
+    # स्ट्रीमलिट का इन-बिल्ट बार चार्ट जो बिना किसी भारी लाइब्रेरी के तुरंत लोड होगा
+    st.bar_chart(data=chart_data, x="Asset Class", y="Amount", color="#1f77b4")
+    st.caption("📈 यह ग्राफ दिखाता है कि आपका पैसा सुरक्षा और ग्रोथ के हिसाब से कहाँ-कहाँ बंट रहा है।")
