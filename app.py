@@ -18,20 +18,26 @@ except Exception as e:
 
 st.set_page_config(page_title="WealthSetu Institutional", page_icon="🏛️", layout="wide")
 
-# वीआईपी संस्थागत हेडर
-st.title("🏛️ WealthSetu Institutional | Quantum Algo & Risk Terminal")
-st.markdown("⚡ *10x Value: Multi-Broker, Auto-Rebalancing, Risk Management & Audit Logs System*")
-st.markdown("---")
-
-# 📝 ऑडिट लॉग्स इंजन (System Audit Trail)
-if "audit_logs" not in st.session_state:
-    st.session_state.audit_logs = [
-        f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚙️ सिस्टम इनिशियलाइज्ड। सुरक्षा प्रोटोकॉल एक्टिव।"
-    ]
+# 📊 विज़िटर ट्रैकर इंजन (Visitor & Traffic Tracker)
+if "total_visits" not in st.session_state:
+    st.session_state.total_visits = 1
+    # पहली बार खुलने पर लॉग दर्ज करें
+    if "audit_logs" not in st.session_state:
+        st.session_state.audit_logs = [
+            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚙️ सिस्टम इनिशियलाइज्ड। सुरक्षा प्रोटोकॉल एक्टिव।",
+            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 👀 👀 [ट्रैफिक एलर्ट] एक नए विज़िटर ने आपकी वेबसाइट ओपन की है!"
+        ]
+else:
+    st.session_state.total_visits += 1
 
 def add_log(message):
     timestamp = datetime.datetime.now().strftime('%H:%M:%S')
     st.session_state.audit_logs.append(f"[{timestamp}] {message}")
+
+# वीआईपी संस्थागत हेडर
+st.title("🏛️ WealthSetu Institutional | Quantum Algo & Risk Terminal")
+st.markdown("⚡ *10x Value: Multi-Broker, Auto-Rebalancing, Risk Management & Traffic Analytics*")
+st.markdown("---")
 
 # 1. लाइव संकेत और मार्केट डेटा इंजन
 def get_live_market_data():
@@ -49,18 +55,13 @@ def get_live_market_data():
 
 current_pe, nifty_spot = get_live_market_data()
 
-# 🔑 बुलेटप्रूफ TOTP जनरेटर (पैडिंग फिक्स के साथ)
+# 🔑 बुलेटप्रूफ TOTP जनरेटर
 def generate_totp(secret):
     try:
-        # स्पेस हटाएं और सब कुछ अपरकेस करें
         secret_clean = secret.upper().replace(' ', '')
-        
-        # ⚡ जादुई पैडिंग फिक्स: अगर लंबाई 8 से डिवाइड नहीं हो रही, तो '=' जोड़ें
         missing_padding = len(secret_clean) % 8
         if missing_padding:
             secret_clean += '=' * (8 - missing_padding)
-            
-        # अब डिकोड करें (अब कभी Padding Error नहीं आएगा!)
         key = base64.b32decode(secret_clean, casefold=True)
         msg = int(time.time() // 30).to_bytes(8, byteorder='big')
         hs = hmac.new(key, msg, hashlib.sha1).digest()
@@ -79,14 +80,14 @@ with st.sidebar:
     st.header("👤 | क्लाइंट कंसोल")
     selected_client = st.selectbox("सक्रिय क्लाइंट:", [f"Udit Patware ({ANGEL_CLIENT_ID})", "Priyanka Patware (Family)"])
     st.markdown("---")
-    st.header("🛡️ |...रिस्क मैनेजमेंट (RMS)")
+    st.header("🛡️ | रिस्क मैनेजमेंट (RMS)")
     max_slippage = st.slider("मैक्सिमम स्लिपेज कंट्रोल (%)", 0.05, 0.50, 0.10)
     circuit_breaker = st.checkbox("इंट्राडे सर्किट ब्रेकर एक्टिवेट करें", value=True)
     st.markdown("---")
-    st.header("⏳ |...शेड्यूल मोड्स")
+    st.header("⏳ | शेड्यूल मोड्स")
     scheduler_mode = st.toggle("⏰ ऑटोमैटिक मोड (No-Click CRON)", value=False)
 
-# 📊 लाइव पोर्टफोलियो डैशबोर्ड
+# 📊 लाइव पोर्टफोलियो और ट्रैकर डैशबोर्ड
 st.subheader("📊 लाइव रिस्क एंड पीएंडएल डैशबोर्ड (Live RMS Dashboard)")
 p_col1, p_col2, p_col3, p_col4 = st.columns(4)
 
@@ -98,15 +99,12 @@ profit_percentage = (net_profit / invested_value) * 100
 with p_col1:
     st.metric(label="कुल निवेश (Invested Value)", value=f"₹{invested_value:,.2f}")
 with p_col2:
-    st.metric(label="लाइव वैल्यू (Current Value)", value=f"₹{current_value:,.2f}")
-with p_col3:
     st.metric(label="नेट P&L (Total P&L)", value=f"₹{net_profit:,.2f}", delta=f"+{profit_percentage:.2f}%")
+with p_col3:
+    st.metric(label="पोर्टफोलियो ड्रिफ्ट", value="4.2%", delta="✅ STABLE")
 with p_col4:
-    drift = 4.2
-    if drift > 5.0:
-        st.metric(label="पोर्टफोलियो ड्रिफ्ट (Drift Status)", value=f"{drift}%", delta="⚠️ REBALANCE NEEDED", delta_color="inverse")
-    else:
-        st.metric(label="पोर्टफोलियो ड्रिफ्ट (Drift Status)", value=f"{drift}%", delta="✅ STABLE")
+    # 🌟 नया विज़िटर काउंटर मीटर चमकता हुआ!
+    st.metric(label="👁️ कुल पेज व्यूज (Total Hits)", value=st.session_state.total_visits, delta="Live Tracker Enabled")
 
 st.markdown("---")
 
@@ -142,7 +140,7 @@ with col1:
             live_otp = generate_totp(ANGEL_TOTP_SECRET)
             
             if live_otp == "000000":
-                st.error("❌ क्रिटिकल एरर: TOTP जनरेशन फेल हो गया। आर्डर रिजेक्टेड। (चेक लॉग्स)")
+                st.error("❌ क्रिटिकल एरर: TOTP जनरेशन फेल हो गया। आर्डर रिजेक्टेड।")
                 add_log("🚨 क्रिटिकल एरर: पैडिंग या सीक्रेट की अमान्य है।")
             else:
                 add_log(f"🔐 लाइव TOTP सफलता के साथ जनरेट हुआ: {live_otp}")
@@ -163,7 +161,7 @@ with col2:
     st.markdown("---")
     st.subheader("📜 लाइव ऑडिट लॉग्स (System Audit Trail)")
     for log in reversed(st.session_state.audit_logs):
-        if "❌" in log or "🚨" in log or "⚠️" in log:
+        if "❌" in log or "🚨" in log or "⚠️" in log or "👀" in log:
             st.code(log, language="bash")
         else:
             st.text(log)
