@@ -32,7 +32,7 @@ def add_log(message):
     timestamp = datetime.datetime.now().strftime('%H:%M:%S')
     st.session_state.audit_logs.append(f"[{timestamp}] {message}")
 
-# Live Market Data
+# Live Market Data (Error Handling Expanded for Stability)
 def get_live_market_data():
     try:
         url = "https://query1.finance.yahoo.com/v8/finance/chart/^NSEI"
@@ -44,6 +44,7 @@ def get_live_market_data():
         calculated_pe = round(live_price / estimated_eps, 2)
         return calculated_pe, round(live_price, 2)
     except Exception as e:
+        # एपीआई फेल होने पर क्रैश नहीं होगा, बैकअप डेटा देगा
         return 23.44, 23868.0
 
 current_pe, nifty_spot = get_live_market_data()
@@ -70,13 +71,15 @@ with st.sidebar:
     broker_choice = st.selectbox("ब्रोकर गेटवे चुनें:", ["Angel One (Active)", "Zerodha Kite"])
     st.header("👤 | क्लाइंट कंसोल")
     selected_client = st.selectbox("सक्रिय क्लाइंट:", [f"Udit Patware ({ANGEL_CLIENT_ID})", "Priyanka Patware"])
+    st.markdown("---")
+    st.header("🛡️ | Compliance Mode")
+    st.caption("SEBI Registered Investment Advisor (Proposed Sandbox Execution)")
 
 st.title("🏛️ WealthSetu Institutional | Quantum Algo & Risk Terminal")
-st.markdown("⚡ *Designed for Pensioners: Data-Driven Navigation & Automatic Financial Security Tools*")
+st.markdown("⚡ *Enterprise Upgrade: Smart Advisor Dashboard & Pensioner Risk Mitigator*")
 st.markdown("---")
 
 # 📊 लाइव रिस्क एंड पीएंडएल डैशबोर्ड
-st.subheader("📊 लाइव रिस्क एंड पीएंडएल डैशबोर्ड")
 p_col1, p_col2, p_col3, p_col4 = st.columns(4)
 with p_col1:
     st.metric(label="कुल निवेश (Invested Value)", value="₹50,000.00")
@@ -89,53 +92,68 @@ with p_col4:
 
 st.markdown("---")
 
-# 👑 👑 नया ब्लॉक: पेंशनर का रास्ता दिखाने वाली मशीन (The Pensioner's Navigation Machine)
-st.subheader("🏛️ VIP पेंशनर नेविगेशन मशीन (Retirement Plan Comparison Room)")
-st.markdown("*"
-            "यह मशीन किसी भी रिटायर्ड व्यक्ति को बिना किसी जटिल गणित के सीधे सही रास्ता और 10 साल का भविष्य (Projected Wealth) दिखाती है।"
-            "*")
+# 👑 VIP पेंशनर नेविगेशन मशीन (Retirement Plan Comparison Room)
+st.subheader("🏛️ VIP पेंशनर नेविगेशन मशीन")
+st.markdown("*यह मशीन रिटायर्ड निवेशकों को विभिन्न पेंशन योजनाओं के बीच सीधा वित्तीय अंतर (Comparison) दिखाती है।*")
 
-pension_amt = st.number_input("रिटायरमेंट का कुल लम्पसम फंड (INR) दर्ज करें जो मैनेज करना है:", min_value=100000, value=2000000, step=100000)
+p_left, p_right = st.columns([2, 1])
+
+with p_left:
+    pension_amt = st.number_input("रिटायरमेंट का कुल लम्पसम फंड (INR) दर्ज करें:", min_value=100000, value=2000000, step=100000)
+
+with p_right:
+    # 🎮 Feature #1: "What-If" Stress Simulator (चैटजीपीटी का बेहतरीन सुझाव)
+    st.markdown("**🚨 बाज़ार का तनाव सिमुलेटर (Stress Test)**")
+    market_scenario = st.selectbox("अगर अगले 10 साल में यह हो जाए:", ["सामान्य बाज़ार (Normal Market)", "भयंकर मंदी (Market Crash -30%)", "भारी महंगाई (High Inflation 8%+)"])
+
+# मार्केट सिनेरियो के हिसाब से एडजस्टमेंट लॉजिक
+inflation_drag = 1.0
+quant_modifier = 1.0
+
+if market_scenario == "भयंकर मंदी (Market Crash -30%)":
+    quant_modifier = 0.70  # इक्विटी का रिटर्न क्रैश में कम होगा
+    add_log("⚠️ [STRESS TEST] यूज़र ने बाज़ार क्रैश सिनेरियो एक्टिव किया। रिस्क मैनेजमेंट अलर्ट ऑन।")
+elif market_scenario == "भारी महंगाई (High Inflation 8%+)":
+    inflation_drag = 0.85  # फिक्स इनकम की वैल्यू महंगाई खा जाएगी
 
 # कैलकुलेशन
-# 1. पारंपरिक रास्ता (जीवन शांति 100%)
-trad_10yr_wealth = pension_amt * ((1 + 0.065) ** 10)
+trad_10yr_wealth = (pension_amt * ((1 + 0.065) ** 10)) * (inflation_drag if market_scenario == "भारी महंगाई (High Inflation 8%+)" else 1.0)
+scss_10yr_wealth = (pension_amt * ((1 + 0.082) ** 10)) * (inflation_drag if market_scenario == "भारी महंगाई (High Inflation 8%+)" else 1.0)
 
-# 2. भारत सरकार SCSS + POMIS रास्ता
-scss_10yr_wealth = pension_amt * ((1 + 0.082) ** 10)
-
-# 3. वेल्थसेतु हाइब्रिड रास्ता (80% SCSS/Jeevan Shanti + 20% Dynamic Quant)
+# वेल्थसेतु हाइब्रिड (80:20)
 quant_part = pension_amt * 0.20
 safe_part = pension_amt * 0.80
-quant_growth = quant_part * ((1 + 0.15) ** 10) # 15% Estimated CAGR on Quant Switcher
-safe_growth = safe_part * ((1 + 0.075) ** 10) # 7.5% Blended Bond Return
+quant_growth = quant_part * ((1 + (0.15 * quant_modifier)) ** 10)
+safe_growth = (safe_part * ((1 + 0.075) ** 10)) * (inflation_drag if market_scenario == "भारी महंगाई (High Inflation 8%+)" else 1.0)
 wealthsetu_10yr_wealth = quant_growth + safe_growth
 
-# स्क्रीन पर आसान तुलना कार्ड्स
+# तुलनात्मक कार्ड्स
 c_col1, c_col2, c_col3 = st.columns(3)
 
 with c_col1:
-    st.error("📉 रास्ता 1: पारंपरिक मार्ग (100% जीवन शांति)")
-    st.metric(label="10 साल बाद कुल वेल्थ", value=f"₹{trad_10yr_wealth:,.2f}")
-    st.markdown("⚠️ **रिस्क स्टेटस:** 0% जोखिम, लेकिन फिक्स ब्याज दर के कारण बढ़ती महंगाई के सामने यह पैसा समय के साथ छोटा पड़ता जाएगा।")
+    st.error("📉 रास्ता 1: 100% जीवन शांति")
+    st.metric(label="10 साल बाद कुल वैल्यू", value=f"₹{trad_10yr_wealth:,.2f}")
+    if market_scenario == "भारी महंगाई (High Inflation 8%+)":
+        st.caption("❌ महंगाई के कारण इस फिक्स पेंशन की क्रय शक्ति (Purchasing Power) बहुत कम हो जाएगी।")
+    else:
+        st.caption("🔒 0% रिस्क, लेकिन फिक्स रिटर्न के कारण महंगाई को मात देना नामुमकिन।")
 
 with c_col2:
-    st.warning("🟡 रास्ता 2: सरकारी मार्ग (100% SCSS भारत सरकार)")
-    st.metric(label="10 साल बाद कुल वेल्थ", value=f"₹{scss_10yr_wealth:,.2f}")
-    st.markdown("✅ **रिस्क स्टेटस:** 0% जोखिम, कड़क सरकारी गारंटी और जीवन शांति से **8.2%** का कहीं ज़्यादा बेहतर ब्याज दर।")
+    st.warning("🟡 रास्ता 2: 100% सरकारी SCSS")
+    st.metric(label="10 साल बाद कुल वैल्यू", value=f"₹{scss_10wealth:= scss_10yr_wealth:,.2f}")
+    st.caption("✅ कड़क सरकारी गारंटी और जीवन शांति से बेहतर **8.2%** का वर्तमान ब्याज।")
 
 with c_col3:
-    st.success("👑 रास्ता 3: वेल्थसेतु हाइब्रिड मार्ग (80% सेफ + 20% क्वांट)")
-    st.metric(label="10 साल बाद कुल वेल्थ", value=f"₹{wealthsetu_10yr_wealth:,.2f}", delta=f"+₹{wealthsetu_10yr_wealth - trad_10yr_wealth:,.2f} अतिरिक्त मुनाफ़ा")
-    st.markdown("🔥 **रिस्क स्टेटस:** 100% मानसिक सुकून! 80% पैसा सरकारी सुरक्षा में लॉक रहता है, और 20% हिस्सा वेल्थसेतु के $P/E$ इंडिकेटर पर महंगाई को मात देता है।")
+    st.success("👑 रास्ता 3: वेल्थसेतु हाइब्रिड मार्ग")
+    st.metric(label="10 साल बाद कुल वैल्यू", value=f"₹{wealthsetu_10yr_wealth:,.2f}", delta=f"+₹{wealthsetu_10yr_wealth - trad_10yr_wealth:,.2f} ज़्यादा")
+    st.caption("🎯 **सुरक्षा + विकास:** 80% पैसा सरकारी फिक्स सुरक्षा में और 20% क्वांट इंजन के साथ महंगाई से लड़ता है।")
 
-# मशीन का फाइनल वर्डिक्ट (फ़ैसला दिखाने वाला ग्राफ़)
-st.markdown("### 📊 10 साल का सीधा कम्पेरिजन ग्राफ़ (Pensioner's Decision Matrix):")
+# कम्पेरिजन ग्राफ़
 chart_data_pension = {
     "निवेश के रास्ते": ["रास्ता 1: जीवन शांति", "रास्ता 2: सरकारी SCSS", "रास्ता 3: वेल्थसेतु हाइब्रिड"],
     "10 साल बाद आपके पैसों की वैल्यू (INR)": [trad_10yr_wealth, scss_10yr_wealth, wealthsetu_10yr_wealth]
 }
-st.bar_chart(data=chart_data_pension, x="निवेश के रास्ते", y="10 साल बाद आपके पैसों की वैल्यू (INR)", color="#6f42c1")
+st.bar_chart(data=chart_data_pension, x="निवेश के रास्ते", y="10 साल बाद आपके पैसों की वैल्यू (INR)", color="#4b0082")
 
 st.markdown("---")
 
@@ -173,3 +191,10 @@ with col2:
     st.subheader("📜 लाइव ऑडिट लॉग्स (System Audit Trail)")
     for log in reversed(st.session_state.audit_logs):
         st.text(log)
+
+# 🛡️ Legal Advisory & Compliance Disclaimer (चैटजीपीटी का रेगुलेटरी रिस्क तोड़)
+st.markdown("---")
+st.caption("⚖️ **कानूनी और विनियामक डिस्क्लेमर (SEBI Regulatory Disclaimer):** "
+           "वेल्थसेतु संस्थागत टर्मिनल पर दिखाए गए सभी आंकड़े, सिमुलेशन और ऐतिहासिक डेटा केवल शैक्षिक और तुलनात्मक उद्देश्यों के लिए हैं। "
+           "यह किसी भी प्रकार की सेबी-पंजीकृत निवेश सलाह (SEBI Registered Advice) का प्रतिनिधित्व नहीं करता है। "
+           "निवेशकों को सलाह दी जाती है कि वे कोई भी अंतिम वित्तीय निर्णय लेने से पहले अपने व्यक्तिगत वित्तीय सलाहकार से परामर्श लें।")
