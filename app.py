@@ -18,14 +18,13 @@ except Exception as e:
 
 st.set_page_config(page_title="WealthSetu Institutional", page_icon="🏛️", layout="wide")
 
-# 📊 विज़िटर ट्रैकर इंजन (Visitor & Traffic Tracker)
+# 📊 विज़िटर ट्रैकर इंजन
 if "total_visits" not in st.session_state:
     st.session_state.total_visits = 1
-    # पहली बार खुलने पर लॉग दर्ज करें
     if "audit_logs" not in st.session_state:
         st.session_state.audit_logs = [
             f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚙️ सिस्टम इनिशियलाइज्ड। सुरक्षा प्रोटोकॉल एक्टिव।",
-            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 👀 👀 [ट्रैफिक एलर्ट] एक नए विज़िटर ने आपकी वेबसाइट ओपन की है!"
+            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 👀 [ट्रैफिक एलर्ट] एक नए विज़िटर ने आपकी वेबसाइट ओपन की है!"
         ]
 else:
     st.session_state.total_visits += 1
@@ -33,11 +32,6 @@ else:
 def add_log(message):
     timestamp = datetime.datetime.now().strftime('%H:%M:%S')
     st.session_state.audit_logs.append(f"[{timestamp}] {message}")
-
-# वीआईपी संस्थागत हेडर
-st.title("🏛️ WealthSetu Institutional | Quantum Algo & Risk Terminal")
-st.markdown("⚡ *10x Value: Multi-Broker, Auto-Rebalancing, Risk Management & Traffic Analytics*")
-st.markdown("---")
 
 # 1. लाइव संकेत और मार्केट डेटा इंजन
 def get_live_market_data():
@@ -82,10 +76,15 @@ with st.sidebar:
     st.markdown("---")
     st.header("🛡️ | रिस्क मैनेजमेंट (RMS)")
     max_slippage = st.slider("मैक्सिमम स्लिपेज कंट्रोल (%)", 0.05, 0.50, 0.10)
-    circuit_breaker = st.checkbox("इंट्राडे सर्किट ब्रेकर एक्टिवेट करें", value=True)
+    circuit_breaker = st.checkbox("इंट्राडे CIRCUIT BREAKER", value=True)
     st.markdown("---")
     st.header("⏳ | शेड्यूल मोड्स")
     scheduler_mode = st.toggle("⏰ ऑटोमैटिक मोड (No-Click CRON)", value=False)
+
+# वीआईपी संस्थागत हेडर
+st.title("🏛️ WealthSetu Institutional | Quantum Algo & Risk Terminal")
+st.markdown("⚡ *10x Value: Live P&L, Risk Matrix, Traffic Counter & NPS Dynamic Switcher*")
+st.markdown("---")
 
 # 📊 लाइव पोर्टफोलियो और ट्रैकर डैशबोर्ड
 st.subheader("📊 लाइव रिस्क एंड पीएंडएल डैशबोर्ड (Live RMS Dashboard)")
@@ -103,8 +102,47 @@ with p_col2:
 with p_col3:
     st.metric(label="पोर्टफोलियो ड्रिफ्ट", value="4.2%", delta="✅ STABLE")
 with p_col4:
-    # 🌟 नया विज़िटर काउंटर मीटर चमकता हुआ!
     st.metric(label="👁️ कुल पेज व्यूज (Total Hits)", value=st.session_state.total_visits, delta="Live Tracker Enabled")
+
+st.markdown("---")
+
+# 🧠 🧠 नया ब्लॉक: NPS डायनेमिक पीई स्विचर मॉड्यूल (NPS Dynamic PE Switcher)
+st.subheader("🏛️ नेशनल पेंशन सिस्टम (NPS) - इंटेलिजेंट एलोकेशन एडवाइज़री")
+nps_col1, nps_col2 = st.columns([2, 1])
+
+with nps_col1:
+    st.markdown(f"📊 **वर्तमान निफ्टी P/E स्थिति:** `{current_pe}`")
+    
+    # एक्चुअरी स्विचिंग लॉजिक
+    if current_pe > 24.0:
+        nps_e = 30  # बाजार महंगा है, इक्विटी घटाओ
+        nps_c = 20
+        nps_g = 50  # सरकारी बॉन्ड्स बढ़ाओ
+        nps_status = "🔴 MARKET OVERVALUED (सुरक्षा मोड एक्टिवेट करें)"
+        nps_advice = "सलाह: शेयर बाज़ार इस समय काफी महंगा है। घाटे से बचने के लिए अपने एनपीएस पोर्टल पर लॉगिन करें और Scheme Preference चेंज करके इक्विटी (E) को घटाकर 30% करें और सरकारी बॉन्ड्स (G) को बढ़ाकर 50% पर लॉक करें।"
+    elif current_pe < 19.0:
+        nps_e = 75  # बाजार बहुत सस्ता है, इक्विटी मैक्सिमम करो
+        nps_c = 15
+        nps_g = 10
+        nps_status = "🟢 MARKET UNDERVALUED (आक्रामक मोड एक्टिवेट करें)"
+        nps_advice = "सलाह: शेयर बाज़ार इस समय बहुत आकर्षक भाव पर है! लंबी अवधि में छप्परफाड़ रिटर्न कमाने के लिए अपने एनपीएस पोर्टल पर तुरंत इक्विटी (E) का हिस्सा बढ़ाकर अधिकतम 75% अलॉट करें।"
+    else:
+        nps_e = 50  # बैलेंस्ड मार्केट
+        nps_c = 25
+        nps_g = 25
+        nps_status = "🟡 MARKET NEUTRAL (बैलेंस्ड मोड एक्टिवेट करें)"
+        nps_advice = "सलाह: बाजार अभी स्थिर है। रिस्क और रिटर्न को बैलेंस रखने के लिए 50% इक्विटी और बाकी हिस्सा कॉर्पोरेट/सरकारी बॉन्ड्स में बराबर बांट कर रखें।"
+
+    st.warning(f"**सिस्टम सिग्नल:** {nps_status}")
+    st.info(f"💡 {nps_advice}")
+
+with nps_col2:
+    # विज़ुअलाइज़ेशन ग्राफ़ एनपीएस के लिए
+    nps_chart_data = {
+        "NPS Asset Class": ["Scheme E (Equity)", "Scheme C (Corporate)", "Scheme G (Government)"],
+        "Target Allocation (%)": [nps_e, nps_c, nps_g]
+    }
+    st.bar_chart(data=nps_chart_data, x="NPS Asset Class", y="Target Allocation (%)", color="#1f77b4")
 
 st.markdown("---")
 
@@ -112,7 +150,7 @@ st.markdown("---")
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.subheader("⚡ इंटेलिजेंट एसेट एलोकेशन")
+    st.subheader("⚡ इंटेलिजेंट एसेट एलोकेशन (Equity Basket)")
     investment_amount = st.number_input("निवेश राशि (INR) दर्ज करें:", min_value=1000, value=50000, step=5000)
     
     if current_pe > 24.0:
